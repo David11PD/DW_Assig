@@ -160,3 +160,20 @@ GROUP BY dcl.class_name, df.title
 HAVING nominations >= 2
 ORDER BY dcl.class_name, nominations DESC
 LIMIT 10;
+
+
+----  Comparação entre eras (clássico vs moderno)
+SELECT
+    dcer.era,
+    COUNT(*) AS nominations,
+    SUM(fn.win_count) AS wins,
+    COUNT(DISTINCT fn.film_key) AS distinct_films,
+    COUNT(DISTINCT bp.nominee_key) AS distinct_nominees,
+    ROUND(100.0 * SUM(fn.win_count) / COUNT(*), 1) AS win_rate_pct
+FROM fact_nomination AS fn
+INNER JOIN dim_ceremony AS dcer 
+ON fn.ceremony_key = dcer.ceremony_key
+LEFT JOIN bridge_participation as bp
+ON fn.nom_id = bp.nom_id
+GROUP BY dcer.era
+ORDER BY dcer.era;
